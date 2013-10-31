@@ -1,11 +1,12 @@
-![Infoxchange](http://www.infoxchange.net.au/sites/default/files/logo_0.jpg)
-
 opstools
 ========
 
 Scripts, Tools and Notes from the Infoxchange Ops Team
 
-Infoxchange is a not-for-profit community organisation that delivers technology for social justice.
+
+![Infoxchange](http://www.infoxchange.net.au/sites/default/files/logo_0.jpg)
+
+nfoxchange is a not-for-profit community organisation that delivers technology for social justice.
 
 We work to strengthen communities and organisations, using information technology as the primary tool to create positive social change.
 
