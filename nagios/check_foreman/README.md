@@ -69,3 +69,7 @@ Perl packages required by this plugin:
 
 	LWP:  libwww-perl (deb)  or  perl-libwww-perl (rpm)
 	JSON: libjson-perl (deb) or perl-json (rpm)
+
+ScreenShots
+-----------
+![check_foreman PNP4Nagios graph](check_foreman.pnp4nagios.png)
