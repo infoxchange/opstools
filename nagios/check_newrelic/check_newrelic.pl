@@ -2,7 +2,7 @@
 
 #############################################################################
 #                                                                           #
-# This script was initially developed by Infochange for internal use        #
+# This script was initially developed by Infoxchange for internal use        #
 # and has kindly been made available to the Open Source community for       #
 # redistribution and further development under the terms of the             #
 # GNU General Public License v3: http://www.gnu.org/licenses/gpl.html       #
@@ -17,7 +17,7 @@
 #       Test it yourself, and make sure it works for YOU.                   #
 #                                                                           #
 #############################################################################
-# Author: George Hansper                     e-mail:  george@Hansper.id.au  #
+# Author: George Hansper                     e-mail:  george@hansper.id.au  #
 #############################################################################
 
 use strict;
