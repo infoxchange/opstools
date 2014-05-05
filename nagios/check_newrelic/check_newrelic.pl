@@ -2,7 +2,7 @@
 
 #############################################################################
 #                                                                           #
-# This script was initially developed by Infoxchange for internal use        #
+# This script was initially developed by Infoxchange for internal use       #
 # and has kindly been made available to the Open Source community for       #
 # redistribution and further development under the terms of the             #
 # GNU General Public License v3: http://www.gnu.org/licenses/gpl.html       #

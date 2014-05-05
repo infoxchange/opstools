@@ -48,19 +48,19 @@ Other Requirements
 
 Packages required by this plugin:
 
-	curl
+* curl
 
 Sample Output
 -------------
 
-# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster
-OK: Response time 1.068s - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=1.068s;5;10;0
+	# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster
+	OK: Response time 1.068s - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=1.068s;5;10;0
 
-# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 2.0
-Warning: Response time 1.055>=0.5 - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=1.055s;0.5;2.0;0
+	# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 2.0
+	Warning: Response time 1.055>=0.5 - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=1.055s;0.5;2.0;0
 
-# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 2.0
-Critical: Response time 2.215>=2.0 - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=2.215s;0.5;2.0;0
+	# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 2.0
+	Critical: Response time 2.215>=2.0 - found 'environment: production' in https://my-puppetmaster:8140/production/node/my-nagios.local|time=2.215s;0.5;2.0;0
 
-# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 1.0 -t 1
-Critical: Response time 1.016>=1.0 - https://my-puppetmaster:8140/production/node/my-nagios.local curl: (28) Operation timed out after 1001 milliseconds with 0 bytes received|time=1.016s;0.5;1.0;0
+	# sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H my-puppetmaster -w 0.5 -c 1.0 -t 1
+	Critical: Response time 1.016>=1.0 - https://my-puppetmaster:8140/production/node/my-nagios.local curl: (28) Operation timed out after 1001 milliseconds with 0 bytes received|time=1.016s;0.5;1.0;0
