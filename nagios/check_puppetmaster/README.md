@@ -23,15 +23,18 @@ This plugin needs to run as the user puppet or root, in order to access the SSL 
 Example configuration
 
 /etc/sudoers
+
 	nagios  ALL=(puppet) NOPASSWD: /usr/lib/nagios/plugins/check_puppetmaster.sh
 
 /etc/nagios/commands.cfg (fragment)
+
 	define command {
 	     command_name       check_puppetmaster
 	     command_line       /usr/bin/sudo -u puppet /usr/lib/nagios/plugins/check_puppetmaster.sh -H $HOSTNAME$ $ARG1$
 	}
 
 /etc/nagios/services.cfg (fragment, typical)
+
 	define service {
 		use                             generic-service
 		host_name                       my-puppetmaster
