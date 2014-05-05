@@ -2,8 +2,8 @@
 opstools/nagios/check_puppetmaster
 ==================================
 
-* check_puppetmaster.sh - Nagios Plugin (Bash Script)
-
+check_puppetmaster.sh - Nagios Plugin (Bash Script)
+---------------------------------------------------
 
 This Nagios Plugin is made for a Puppet-controlled environment.
 
