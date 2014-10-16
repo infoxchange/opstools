@@ -1,0 +1,3 @@
+nagios/check_newrelic/check_newrelic.pl		ident
+nagios/check_foreman/check_foreman.pl		ident
+nagios/check_foreman/check_foreman.php		ident

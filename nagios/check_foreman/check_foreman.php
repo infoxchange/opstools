@@ -1,7 +1,7 @@
 <?php
 #
-# check_mem.pl PNP4Nagios template
-# v1.1 2011-12-20  
+# check_foreman.pl PNP4Nagios template
+# v1.0 2013-11-01 $Id$
 #
 
 $opt[1] = "--title \"Statistics for $servicedesc on $hostname\" -l 0 ";

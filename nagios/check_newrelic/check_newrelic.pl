@@ -40,7 +40,7 @@ my @message;
 my $exit = 0;
 my @exit = qw/OK: WARNING: CRITICAL: UNKNOWN:/;
 
-my $rcs_id = '$Id$';
+my $rcs_id = 'Version 1.0 $Id$';
 my $rcslog = '
 	$Log$
 	';
