@@ -50,67 +50,74 @@ $palette = array(
     array('GREY',   '#C0C0C0', '#808080')
     );
 
+# Set defaults, if not already set
 if ( ! isset($def[1]) ) {
   $def = array();
-}
-
-if ( ! isset($LIMIT) ) {
-  $LIMIT=count($DS);
+  $def_n_start=1;
+} else {
+  $def_n_start = count($def)+1;
+  if ( ! isset( $opt[$def_n_start] ) || $opt[$def_n_start] == '' ) {
+    # Set the title and other options from the 1st graph, if the user hasn't supplied $opt[]
+    $opt[$def_n_start] = $opt[1];
+  }
 }
 
 if ( ! isset($FILL) ) {
   $FILL=true;
 }
-# Pre-populate the array so that they are displayed in the order 1..n
-for( $ndx=1; $ndx*$LIMIT < (count($DS)+$LIMIT-1); $ndx++ ){
-  $def[$ndx]='';
-  $ds_name[$ndx]='';
-  if ( $ndx != 1 ) {
-    $opt[$ndx]=$opt[1];
-  }
+
+if ( ! isset($REGEX_EXCLUDE) ) {
+  $REGEX_EXCLUDE=false;
 }
 
-$def_n = 1;
-# Graph index - DS index after ignoring the 'time' DS
+#-----------------------
+$def_n = $def_n_start;
+# Graph index - counter for the number of DS's we have included in this graph
 $gr_ndx=0;
 $cdef_line = '';
 
 foreach ( array_keys($DS) as $ds_ndx ) {
-  if ($NAME[$ds_ndx] == 'time' ) {
-    $def_time =  floor( ( count($DS) + $LIMIT -2 ) / $LIMIT ) + 1; 
-    $opt[$def_time] = "--title \"Execution time for $servicedesc on $hostname\" -l 0 ";
-    $ds_name[$def_time] = $LABEL[$ds_ndx];
-    $def[$def_time]    = rrd::def(   'exec_time',  $RRDFILE[$ds_ndx],                $DS[$ds_ndx],         "MAX");
-    if ( $FILL ) {
-      $def[$def_time] .= rrd::area(  'exec_time',  $palette[5][1],       $LABEL[$ds_ndx] );
-      $def[$def_time] .= rrd::line1(  'exec_time',  $palette[5][2], '', ''       );
-    } else {
-      $def[$def_time] .= rrd::line1(  'exec_time',  $palette[5][2],       $LABEL[$ds_ndx] );
+  if ( isset( $REGEX ) ) {
+    if ( $REGEX_EXCLUDE && preg_match($REGEX, $NAME[$ds_ndx] ) ) {
+      # Skip over anything that matches the regex
+      continue;
+    } elseif ( ! $REGEX_EXCLUDE && ! preg_match($REGEX, $NAME[$ds_ndx] ) ) {
+      # Skip over anything that doesn't match the regex
+      continue;
     }
-    $def[$def_time]   .= rrd::gprint('exec_time',  array("LAST", "MIN", "AVERAGE", "MAX"),  "%6.3lg %s");
+    # Otherwise, proceed with the graph
+  }
+  if ($NAME[$ds_ndx] == 'time' ) {
+    # Skip the time DS for now, save the DS index so we can put it at the end
+    $ds_ndx_time = $ds_ndx;
     continue;
   }
 
   $gr_ndx+=1;
-  if ( $gr_ndx > $LIMIT ) {
+  if ( isset($LIMIT) && $gr_ndx > $LIMIT ) {
     $gr_ndx=1;
-    $opt[$def_n+1] = $opt[$def_n];
+    if ( ! isset($opt[$def_n+1] ) || $opt[$def_n+1]=='' ) {
+      $opt[$def_n+1] = $opt[$def_n];
+    }
     $def[$def_n].= $cdef_line;
     $def_n++;
   }
 
-  if ($gr_ndx >= 2  ) {
+  if ($gr_ndx <= 1 ) {
+    # This is a new graph (new $def[] ), initialize a few things
+    $def[$def_n] = '';
+    $ds_name[$def_n] = '';
+    $TYPE='';
+    $cdef_line = '';
+  } else {
+    # more items for this graph, should we stack them?
     if ( ! isset($STACK) || $STACK  == true ) {
+      # Stacked data
       $TYPE="STACK";
     } else {
       # Not stacked data
       $TYPE='';
     }
-  } else {
-    $def[$def_n] = '';
-    $ds_name[$def_n] = '';
-    $TYPE='';
-    $cdef_line = '';
   }
 
   switch( substr($UNIT[$ds_ndx],0,1) ) {
@@ -123,19 +130,21 @@ foreach ( array_keys($DS) as $ds_ndx ) {
 
   # Area
 
+  # Note that we are using the $ds_ndx as the color index 
+  # This means that we use all available colors, rather than re-using low-numbered ones (eg if $gr_ndx is used for color picking)
+  # It also means that if the same DS is rendered twice, it will get the same color from the palette, which is desirable
   # The cdef is used to convert the original data in k,M,G etc back to base units, so rrdtool can do it's own unit rendering
   $def[$def_n]    .= rrd::def(   "raw_{$gr_ndx}",  $RRDFILE[$ds_ndx],                $DS[$ds_ndx],         "MAX");
   $def[$def_n]    .= rrd::cdef(  "var_{$gr_ndx}",  "raw_{$gr_ndx},$unit_mutiplier,*" );
   if ( $FILL ) {
-    $def[$def_n]  .= rrd::area(  "var_{$gr_ndx}",  $palette[($gr_ndx-1)%8][1],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
+    $def[$def_n]  .= rrd::area(  "var_{$gr_ndx}",  $palette[($ds_ndx-1)%count($palette)][1],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
   } else {
-    $def[$def_n]  .= rrd::line1( "var_{$gr_ndx}",  $palette[($gr_ndx-1)%8][2],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
+    $def[$def_n]  .= rrd::line1( "var_{$gr_ndx}",  $palette[($ds_ndx-1)%count($palette)][2],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
   }
   $def[$def_n]    .= rrd::gprint("var_{$gr_ndx}",  array("LAST", "AVERAGE", "MAX"),  "%6.3lg %s");
-  if ( strlen($ds_name[$def_n]) < 50 ) {
-    $ds_name[$def_n] .= "$LABEL[$ds_ndx] ";
-  } else if ( substr($ds_name[$def_n],-3,3) != '...' ) {
-    $ds_name[$def_n] .= "...";
+  $ds_name[$def_n] .= "$LABEL[$ds_ndx] ";
+  if ( strlen($ds_name[$def_n]) > 70 ) {
+    $ds_name[$def_n] = substr($ds_name[$def_n],0,66) . "...";
   }
 
   # Line
@@ -148,14 +157,31 @@ foreach ( array_keys($DS) as $ds_ndx ) {
   if ( $FILL ) {
     if ( ! isset($STACK) || $STACK == true ) {
       $cdef_line .= rrd::cdef( "line_{$gr_ndx}", "var_{$gr_ndx},var_{$gr_ndx},UNKN,IF" );
-      $cdef_line .= rrd::line1( "line_{$gr_ndx}", $palette[($gr_ndx-1)%8][2], '', $TYPE);
+      $cdef_line .= rrd::line1( "line_{$gr_ndx}", $palette[($ds_ndx-1)%count($palette)][2], '', $TYPE);
     } else {
-      $cdef_line .= rrd::line1( "var_{$gr_ndx}", $palette[($gr_ndx-1)%8][2], '', $TYPE);
+      $cdef_line .= rrd::line1( "var_{$gr_ndx}", $palette[($ds_ndx-1)%count($palette)][2], '', $TYPE);
     }
   }
-
 }
 
-$def[$def_n].= $cdef_line;
+if ( $cdef_line != '' ) {
+  $def[$def_n].= $cdef_line;
+}
+
+# Put the execution time graph last
+if ( isset($ds_ndx_time) ) {
+  $def_n++;
+  $opt[$def_n] = "--title \"Execution time for $servicedesc on $hostname\" -l 0 ";
+  $ds_name[$def_n] = $LABEL[$ds_ndx_time];
+  $def[$def_n]    = rrd::def(   'exec_time',  $RRDFILE[$ds_ndx_time],                $DS[$ds_ndx_time],         "MAX");
+  if ( $FILL ) {
+    $def[$def_n] .= rrd::area(  'exec_time',  $palette[5][1],       $LABEL[$ds_ndx_time] );
+    $def[$def_n] .= rrd::line1( 'exec_time',  $palette[5][2], '', ''       );
+  } else {
+    $def[$def_n] .= rrd::line1( 'exec_time',  $palette[5][2],       $LABEL[$ds_ndx_time] );
+  }
+  $def[$def_n]   .= rrd::gprint('exec_time',  array("LAST", "MIN", "AVERAGE", "MAX"),  "%6.3lg %s");
+  unset($ds_ndx_time);
+}
 
 ?>
