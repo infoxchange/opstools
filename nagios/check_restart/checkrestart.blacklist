@@ -1,0 +1,11 @@
+This_file_contains_regex_values
+\[aio\]
+/pg_xlog/
+webwrite
+dovecot.index
+dovecot-uidlist
+/var/cache/nginx
+/var/lib/postgresql/
+/var/lib/nagios./host-perfdata-PID
+/var/lib/nagios./service-perfdata-PID
+/usr/lib/x86_64-linux-gnu/samba/ldb/show_deleted.so
