@@ -30,9 +30,16 @@
 #   $LIMIT = 8;
 #          ... at most $LIMIT data-sources per graph eg
 #              eg. $LIMT=8 if there are 12 Data Sources, render the 1st 8 DS items on the 1st graph, and the nex4 on the second graph
+#   $REGEX = '/abc/';
+#          ... only create graphs for Data Sources that match the regular expression $REGEX
+#
+#   $REGEX_EXCLUDE = true;
+#          ... exclude only Data Sources that match the regular expression $REGEX
 #
 # Any Data Source (perfdata label) named 'time' will be rendered separately below the stacked graph
 # The 'time' DS is created by check_postgres and represents the execution time of the plugin
+#
+# The stack_outline.php can be called multiple times from the same template, with different $REGEX settings
 #
 
 ###############################################################################
