@@ -7,8 +7,9 @@
 # Copyright 2015 Infoxchange
 # Author:  George Hansper <george@hansper.id.au>
 #
-# I found this on https://mail.endcrypt.com/pipermail/check_postgres/2009-March/000308.html
-# Original posted by Cédric Villemain cedric.villemain at dalibo.com 
+# I found this on the check_postgres mailing list
+#    https://mail.endcrypt.com/pipermail/check_postgres/2009-March/000308.html
+# Original posted by Cédric Villemain
 # Rewritten to support RRD_STORAGE_TYPE = MULTIPLE and make it a little more flexible
 #
 # Usage:
@@ -21,15 +22,18 @@
 # <?php
 #        $opt[1] = "--vertical-label \"bytes\"  --title \"Disk usage for $hostname\" -l 0 ";
 #        $STACK=false;
+#        $FILL=false;
 #        require('stack_outline.php');
 # ? >
 #
 # Other control variables:
 #   $FILL = false;
 #          ... draw line graphs only (not filled area graphs)
+#
 #   $LIMIT = 8;
 #          ... at most $LIMIT data-sources per graph eg
-#              eg. $LIMT=8 if there are 12 Data Sources, render the 1st 8 DS items on the 1st graph, and the nex4 on the second graph
+#              eg. $LIMT=8 if there are 12 Data Sources, render the 1st 8 DS items on the 1st graph, and the next 4 on the second graph
+#
 #   $REGEX = '/abc/';
 #          ... only create graphs for Data Sources that match the regular expression $REGEX
 #
