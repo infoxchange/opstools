@@ -40,6 +40,9 @@
 #   $REGEX_EXCLUDE = true;
 #          ... exclude only Data Sources that match the regular expression $REGEX
 #
+#   $START_COLOR=1;
+#          ... start the next graph at color 1 and increment the colors sequentially, instead of based on the DS number
+#
 # Any Data Source (perfdata label) named 'time' will be rendered separately below the stacked graph
 # The 'time' DS is created by check_postgres and represents the execution time of the plugin
 #
@@ -51,14 +54,21 @@
 ###############################################################################
 
 $palette = array(
-    array('RED',    '#EA644A', '#CC3118'),
-    array('YELLOW', '#ECD748', '#C9B215'),
-    array('ORANGE', '#EC9D48', '#CC7016'),
-    array('GREEN',  '#54EC48', '#24BC14'),
-    array('PINK',   '#DE48EC', '#B415C7'),
-    array('BLUE',   '#48C4EC', '#1598C3'),
-    array('PURPLE', '#7648EC', '#4D18E4'),
-    array('GREY',   '#C0C0C0', '#808080')
+    #      name           area       line
+    array('RED',       '#EA644A', '#CC3118'),
+    array('YELLOW',    '#ECD748', '#C9B215'),
+    array('ORANGE',    '#F09D48', '#D07016'),
+    array('GREEN',     '#54EC48', '#24BC14'),
+    array('PINK',      '#DE48EC', '#B415C7'),
+    array('BLUE',      '#48C4EC', '#1590C0'),
+    array('PURPLE',    '#7648EC', '#4D18E4'),
+    array('GREY',      '#A8A8A8', '#808080'),
+    array('PALERED',   '#FFA0A0', '#FF8080'),
+    array('PALEORANGE','#FFC080', '#FFB060'),
+    array('PALEGREEN', '#A0F0A0', '#80E080'),
+    array('PALEBLUE',  '#80A0FF', '#6090F8'),
+    array('LAVENDER',  '#C0B0FF', '#9074F0'),
+    array('PALEGREY',  '#C0C0C0', '#A0A0A0'),
     );
 
 # Set defaults, if not already set
@@ -81,6 +91,14 @@ if ( ! isset($REGEX_EXCLUDE) ) {
   $REGEX_EXCLUDE=false;
 }
 
+if ( isset($START_COLOR) ) {
+  unset($palette_ndx);
+}
+
+if ( ! isset($MIN_MAX_AVERAGE) ) {
+  $MIN_MAX_AVERAGE='AVERAGE';
+}
+
 #-----------------------
 $def_n = $def_n_start;
 # Graph index - counter for the number of DS's we have included in this graph
@@ -98,7 +116,7 @@ foreach ( array_keys($DS) as $ds_ndx ) {
     }
     # Otherwise, proceed with the graph
   }
-  if ($NAME[$ds_ndx] == 'time' ) {
+  if ($NAME[$ds_ndx] == 'time' || $NAME[$ds_ndx] == 't' ) {
     # Skip the time DS for now, save the DS index so we can put it at the end
     $ds_ndx_time = $ds_ndx;
     continue;
@@ -136,21 +154,39 @@ foreach ( array_keys($DS) as $ds_ndx ) {
     case 'G' : $unit_mutiplier = 1073741824; break;
     case 'M' : $unit_mutiplier = 1048576; break;
     case 'k' : $unit_mutiplier = 1024; break;
+    case 'm' : $unit_mutiplier = 0.001; break;
     default  : $unit_mutiplier = 1; break;
   }
 
+
+  if ( isset($START_COLOR) ) {
+    if ( ! isset($palette_ndx) ){
+      $palette_ndx = $START_COLOR % count($palette);
+    } else {
+      $palette_ndx = ($palette_ndx+1) % count($palette);
+    }
+  } else {
+    switch( strtolower($NAME[$ds_ndx]) ) {
+		case 'ok'       : $palette_ndx = 3; break;
+		case 'warning'  :
+		case 'warn'     : $palette_ndx = 1; break;
+		case 'critical' :
+		case 'crit'     : $palette_ndx = 0; break;
+		default         : $palette_ndx = ($ds_ndx-1)%count($palette); break;
+    }
+  }
   # Area
 
   # Note that we are using the $ds_ndx as the color index 
   # This means that we use all available colors, rather than re-using low-numbered ones (eg if $gr_ndx is used for color picking)
   # It also means that if the same DS is rendered twice, it will get the same color from the palette, which is desirable
   # The cdef is used to convert the original data in k,M,G etc back to base units, so rrdtool can do it's own unit rendering
-  $def[$def_n]    .= rrd::def(   "raw_{$gr_ndx}",  $RRDFILE[$ds_ndx],                $DS[$ds_ndx],         "MAX");
+  $def[$def_n]    .= rrd::def(   "raw_{$gr_ndx}",  $RRDFILE[$ds_ndx],                $DS[$ds_ndx],         $MIN_MAX_AVERAGE);
   $def[$def_n]    .= rrd::cdef(  "var_{$gr_ndx}",  "raw_{$gr_ndx},$unit_mutiplier,*" );
   if ( $FILL ) {
-    $def[$def_n]  .= rrd::area(  "var_{$gr_ndx}",  $palette[($ds_ndx-1)%count($palette)][1],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
+    $def[$def_n]  .= rrd::area(  "var_{$gr_ndx}",  $palette[$palette_ndx][1],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
   } else {
-    $def[$def_n]  .= rrd::line1( "var_{$gr_ndx}",  $palette[($ds_ndx-1)%count($palette)][2],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
+    $def[$def_n]  .= rrd::line1( "var_{$gr_ndx}",  $palette[$palette_ndx][2],       sprintf('%-15s',$LABEL[$ds_ndx]),  $TYPE);
   }
   $def[$def_n]    .= rrd::gprint("var_{$gr_ndx}",  array("LAST", "AVERAGE", "MAX"),  "%6.3lg %s");
   $ds_name[$def_n] .= "$LABEL[$ds_ndx] ";
@@ -168,9 +204,9 @@ foreach ( array_keys($DS) as $ds_ndx ) {
   if ( $FILL ) {
     if ( ! isset($STACK) || $STACK == true ) {
       $cdef_line .= rrd::cdef( "line_{$gr_ndx}", "var_{$gr_ndx},var_{$gr_ndx},UNKN,IF" );
-      $cdef_line .= rrd::line1( "line_{$gr_ndx}", $palette[($ds_ndx-1)%count($palette)][2], '', $TYPE);
+      $cdef_line .= rrd::line1( "line_{$gr_ndx}", $palette[$palette_ndx][2], '', $TYPE);
     } else {
-      $cdef_line .= rrd::line1( "var_{$gr_ndx}", $palette[($ds_ndx-1)%count($palette)][2], '', $TYPE);
+      $cdef_line .= rrd::line1( "var_{$gr_ndx}", $palette[$palette_ndx][2], '', $TYPE);
     }
   }
 }
@@ -184,7 +220,7 @@ if ( isset($ds_ndx_time) ) {
   $def_n++;
   $opt[$def_n] = "--title \"Execution time for $servicedesc on $hostname\" -l 0 ";
   $ds_name[$def_n] = $LABEL[$ds_ndx_time];
-  $def[$def_n]    = rrd::def(   'exec_time',  $RRDFILE[$ds_ndx_time],                $DS[$ds_ndx_time],         "MAX");
+  $def[$def_n]    = rrd::def(   'exec_time',  $RRDFILE[$ds_ndx_time],                $DS[$ds_ndx_time],         $MIN_MAX_AVERAGE);
   if ( $FILL ) {
     $def[$def_n] .= rrd::area(  'exec_time',  $palette[5][1],       $LABEL[$ds_ndx_time] );
     $def[$def_n] .= rrd::line1( 'exec_time',  $palette[5][2], '', ''       );
@@ -195,4 +231,8 @@ if ( isset($ds_ndx_time) ) {
   unset($ds_ndx_time);
 }
 
-?>
+# Unset START_COLOR, as this can affect later graphs on the same page
+if ( isset($START_COLOR) ) {
+  unset($START_COLOR);
+}
+
