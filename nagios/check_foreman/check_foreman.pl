@@ -144,12 +144,12 @@ if ( defined($optarg{m}) ) {
 
 
 my %uri = (
-	dashboard => '/api/dashboard',
-	hostgroups => '/api/hostgroups?per_page=10000',
-	total => '/api/hosts?per_page=10000',
-	changed => '/api/hosts?per_page=10000&search=last_report+>+"' . $host_changed_mins . '+minutes+ago"+and+(status.applied+>+0+or+status.restarted+>+0)+and+(status.failed+%3D+0)',
-	out_of_sync => '/api/hosts?per_page=10000&search=%28+last_report+<+"' . $host_age_mins . '+minutes+ago"+or+not+has+last_report+%29+and+status.enabled+%3D+true',
-	failing => '/api/hosts?per_page=10000&search=last_report+%3E+%22'. $host_age_mins . '+minutes+ago%22+and+%28status.failed+%3E+0+or+status.failed_restarts+%3E+0%29+and+status.enabled+%3D+true',
+	dashboard => '/api/v1/dashboard',
+	hostgroups => '/api/v1/hostgroups?per_page=10000',
+	total => '/api/v1/hosts?per_page=10000',
+	changed => '/api/v1/hosts?per_page=10000&search=last_report+>+"' . $host_changed_mins . '+minutes+ago"+and+(status.applied+>+0+or+status.restarted+>+0)+and+(status.failed+%3D+0)',
+	out_of_sync => '/api/v1/hosts?per_page=10000&search=%28+last_report+<+"' . $host_age_mins . '+minutes+ago"+or+not+has+last_report+%29+and+status.enabled+%3D+true',
+	failing => '/api/v1/hosts?per_page=10000&search=last_report+%3E+%22'. $host_age_mins . '+minutes+ago%22+and+%28status.failed+%3E+0+or+status.failed_restarts+%3E+0%29+and+status.enabled+%3D+true',
 );
 
 if ( defined($optarg{t}) ) {
