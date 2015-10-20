@@ -24,4 +24,4 @@ We work towards this by increasing digital inclusion by assisting all those in o
 raising the level of digital proficiency and improving the efficiency and effectiveness of the community focused sector through Information Communication Technology
 advocating for and showcasing the benefits of digital empowerment in our communities.
 
-http://www.infoxchange.net.au
+http://www.infoxchange.org
