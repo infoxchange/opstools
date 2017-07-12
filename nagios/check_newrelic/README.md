@@ -28,6 +28,7 @@ Copy the plugin to:
 	nagios-server:/usr/lib/nagios/plugins/check_newrelic.pl
 
 In the usual *.cfg files:
+
 	define command {
 		command_name    check_newrelic
 		command_line    /usr/lib/nagios/plugins/check_newrelic.pl -H $HOSTNAME$ -k putyourapikeyhere $ARG1$
