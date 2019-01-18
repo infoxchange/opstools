@@ -2,7 +2,7 @@
 
 #############################################################################
 #                                                                           #
-# This script was initially developed by Infoxchange for internal use        #
+# This script was initially developed by Infoxchange for internal use       #
 # and has kindly been made available to the Open Source community for       #
 # redistribution and further development under the terms of the             #
 # GNU General Public License v3: http://www.gnu.org/licenses/gpl.html       #
@@ -52,7 +52,7 @@ my %num_hosts = ();
 my $exit = 0;
 my @exit = qw/OK: WARNING: CRITICAL: UNKNOWN:/;
 
-my $rcs_id = 'Version 1.0 $Id$';
+my $rcs_id = 'Version 1.1 $Id$';
 my $rcslog = '
 	$Log$
 	';
@@ -374,7 +374,7 @@ sub get_hosts_in_state($) {
 	} else {
 		printv "CRITICAL: $url " . $http_response->protocol . " " . $http_response->status_line ."\n";
 		$exit |= 2;
-		return($state,$http_response->protocol,$http_response->status_line);
+		return('U',($http_response->protocol,$http_response->status_line));
 	}
 	return($host_count,@result);
 }
@@ -386,13 +386,17 @@ if ( @hostgroup_incl >0 || @hostgroup_excl >0 ) {
 }
 $message[$message_ndx{total}]       = "Total=$num_hosts{total}";
 $perf_message[$message_ndx{total}]       = "total=$num_hosts{total}";
+if ( $num_hosts{total} eq 'U' ) {
+	# 'U' indicates a HTTP error from the API, Show the HTTP status line
+	$message[$message_ndx{total}]  .= " " . join(" ",@hosts_found);
+}
 
 if ( $num_hosts{changed} > 0 || defined($optarg{m}) ) {
 	( $num_hosts{changed},@hosts_found ) = get_hosts_in_state('changed');
 }
 $message[$message_ndx{changed}]     = "Changed=$num_hosts{changed}";
 $perf_message[$message_ndx{changed}]     = "changed=$num_hosts{changed}";
-if ( $num_hosts{changed} > 0 && $max_hosts > 0 ) {
+if ( ( $num_hosts{changed} > 0 && $max_hosts > 0 ) || $num_hosts{changed} eq 'U' ) {
 	$message[$message_ndx{changed}]  .= " " . join(" ",@hosts_found);
 }
 
@@ -401,7 +405,7 @@ if ( $num_hosts{failing} > 0 ) {
 }
 $message[$message_ndx{failing}]     = "Failing=$num_hosts{failing}";
 $perf_message[$message_ndx{failing}]     = "failing=$num_hosts{failing}";
-if ( $num_hosts{failing} > 0 && $max_hosts > 0 ) {
+if ( ( $num_hosts{failing} > 0 && $max_hosts > 0 ) || $num_hosts{failing} eq 'U' ) {
 	$message[$message_ndx{failing}]  .= " " . join(" ",@hosts_found);
 }
 
@@ -412,7 +416,7 @@ if ( $num_hosts{out_of_sync} > 0 || $num_hosts{reports_missing} > 0 || defined($
 }
 $message[$message_ndx{out_of_sync}] = "Out_of_Sync=$num_hosts{out_of_sync}";
 $perf_message[$message_ndx{out_of_sync}] = "out_of_sync=$num_hosts{out_of_sync}";
-if ( $num_hosts{out_of_sync} > 0 && $max_hosts > 0 ) {
+if ( ( $num_hosts{out_of_sync} > 0 && $max_hosts > 0 ) || $num_hosts{out_of_sync} eq 'U' ) {
 	$message[$message_ndx{out_of_sync}]  .= " " . join(" ",@hosts_found);
 }
 
