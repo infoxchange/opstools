@@ -1,0 +1,16 @@
+# vim: smarttab:expandtab:shiftwidth=2:tabstop=2:softtabstop=2
+#
+name: simple example
+on: [ push ]
+jobs:
+  hello-world:
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v3  # checkout this repo - see https://github.com/actions/checkout
+      - run: echo hello world
+      - run: pwd
+      - run: env
+      - run: ls
+      - run: cat /etc/os-release
+      - run: curl https://icanhazip.com
+
