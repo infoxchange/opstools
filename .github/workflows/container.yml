@@ -1,0 +1,22 @@
+# vim: smarttab:expandtab:shiftwidth=2:tabstop=2:softtabstop=2
+#
+name: container example
+on: [ push ]
+jobs:
+  hello-world-in-a-container:
+    runs-on: [ self-hosted ]
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idcontainer
+    container:
+      image: contyard.office.infoxchange.net.au/centos7:latest
+      volumes:
+        - .:/opstools
+    steps:
+      - uses: actions/checkout@v3  # checkout this repo - see https://github.com/actions/checkout
+      - run: echo hello world
+      - run: pwd
+      - run: env
+      - run: ls
+      - run: ls -la /opstools
+      - run: cat /etc/os-release
+      - run: curl https://icanhazip.com
+
